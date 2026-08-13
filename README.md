@@ -293,5 +293,4 @@ por si quieres agregar capturas de pantalla reales del módulo funcionando.
 ## Referencia de la API
 
 - Documentación funcional (Dosasystems): https://github.com/alapaix13/DosaInvoicecloud-Documentation
-- Swagger (Dosasystems): https://dosasystem.com/swagger/index.html
 - [Formato Comprobante Fiscal Electrónico (e-CF) v1.0 — DGII, oficial (PDF, 89 pág.)](https://dgii.gov.do/cicloContribuyente/facturacion/comprobantesFiscalesElectronicosE-CF/Documentacin%20sobre%20eCF/Formatos%20XML/Formato%20Comprobante%20Fiscal%20Electr%C3%B3nico%20(e-CF)%20v1.0.pdf) — la fuente autoritativa para nombres de campos, obligatoriedad por tipo de e-CF y reglas de cálculo; varias veces más precisa que la documentación de Dosasystems.
