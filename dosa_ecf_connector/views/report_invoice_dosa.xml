@@ -10,12 +10,16 @@
     -->
     <template id="report_invoice_document_dosa" inherit_id="account.report_invoice_document">
         <xpath expr="//div[@id='qrcode']" position="after">
-            <div id="dosa_ecf_qrcode" class="d-flex mb-3 avoid-page-break-inside"
-                 t-if="o.dosa_url_qr">
-                <div class="me-3">
-                    <img t-att-src="o._dosa_qr_img_src()" style="width:110px;height:110px;"/>
-                </div>
-                <div class="d-inline text-muted lh-sm">
+            <!--
+                wkhtmltopdf (Qt WebKit) no soporta bien 'display:flex': un
+                bloque flex aquí puede solaparse con la columna de Totales
+                (float-end) que lo precede. Se usa un layout de bloques
+                simples con 'clear:both' para evitarlo.
+            -->
+            <div id="dosa_ecf_qrcode" class="mb-3 avoid-page-break-inside"
+                 style="clear:both;" t-if="o.dosa_url_qr">
+                <img t-att-src="o._dosa_qr_img_src()" style="width:110px;height:110px;float:left;margin-right:12px;"/>
+                <div class="text-muted lh-sm">
                     <p class="mb-1">
                         <strong>e-CF: </strong><span t-field="o.dosa_encf"/>
                     </p>
@@ -27,6 +31,7 @@
                         <a t-att-href="o.dosa_url_qr" target="_blank">ecf.dgii.gov.do</a>
                     </p>
                 </div>
+                <div style="clear:both;"/>
             </div>
         </xpath>
     </template>

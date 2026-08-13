@@ -1,12 +1,25 @@
 <section class="container">
 
-  <div class="row" style="background-color:#003d7a; border-radius:8px; padding:32px 36px; margin-bottom:28px;">
-    <div class="col-12">
+  <div class="row" style="background-color:#003d7a; border-radius:8px; padding:28px 36px; margin-bottom:24px;">
+    <div class="col-8">
       <h1 style="color:#ffffff; margin-bottom:8px;">Dosa e-CF Connector</h1>
       <p style="color:#ffffff; font-size:16px;">
         Electronic invoicing (e-CF) for the Dominican Republic's tax authority (DGII), via
         Dosa Invoice Cloud. Issue, record and verify your electronic tax receipts without
         leaving Odoo.
+      </p>
+    </div>
+    <div class="col-4" style="text-align:center;">
+      <img src="dosa_logo.png" style="max-width:160px; margin-top:10px; background-color:#ffffff; border-radius:8px; padding:8px;"/>
+    </div>
+  </div>
+
+  <div class="row" style="margin-bottom:8px;">
+    <div class="col-12" style="text-align:center;">
+      <img src="demo.gif" class="img-fluid" style="border:1px solid #e0e0e0; border-radius:8px; max-width:100%;"/>
+      <p style="font-size:13px; color:#888888; margin-top:6px;">
+        The DGII menu, eNCF number ranges, e-CF status detail and a printed invoice with
+        its DGII verification QR code &mdash; all inside standard Odoo invoicing.
       </p>
     </div>
   </div>
@@ -43,18 +56,39 @@
     </div>
   </div>
 
-  <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">Submission monitor</h2>
+  <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">A printed invoice with its DGII QR code</h2>
   <p style="font-size:14px;">
-    A single list of every submitted receipt: DGII status (Accepted, Accepted with
-    observations, Conditionally accepted, Rejected), track ID, DGII messages and
-    communication failures &mdash; without opening each invoice individually.
+    The QR, eNCF and security code are inserted into Odoo's native invoice report, so the
+    printed document is ready for the customer to scan and verify on the DGII portal.
   </p>
+  <div class="row" style="margin-bottom:20px;">
+    <div class="col-12" style="text-align:center;">
+      <img src="screenshot_invoice.png" class="img-fluid" style="border:1px solid #e0e0e0; border-radius:8px; max-width:520px;"/>
+    </div>
+  </div>
+
+  <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">e-CF status on every invoice</h2>
+  <p style="font-size:14px;">
+    A dedicated tab on the invoice/credit note shows the receipt type, eNCF, DGII status,
+    track ID, security code and verification link &mdash; plus the official DGII
+    modification-code table for credit notes.
+  </p>
+  <div class="row" style="margin-bottom:20px;">
+    <div class="col-12" style="text-align:center;">
+      <img src="screenshot_ecf_detail.png" class="img-fluid" style="border:1px solid #e0e0e0; border-radius:8px; max-width:100%;"/>
+    </div>
+  </div>
 
   <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">eNCF number ranges</h2>
   <p style="font-size:14px;">
     Configure the authorized from/to range and the expiration date of each eNCF sequence
     per receipt type from a single screen, with automatic validation before submission.
   </p>
+  <div class="row" style="margin-bottom:20px;">
+    <div class="col-12" style="text-align:center;">
+      <img src="screenshot_rangos.png" class="img-fluid" style="border:1px solid #e0e0e0; border-radius:8px; max-width:100%;"/>
+    </div>
+  </div>
 
   <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">External service &amp; data disclosure</h2>
   <p style="font-size:14px;">
