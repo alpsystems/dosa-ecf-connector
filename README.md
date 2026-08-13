@@ -250,6 +250,16 @@ podían revelar:
   que el QR de la factura sí verifica correctamente — pero vale la pena que
   reporten el bug a Dosasystems, porque cualquier integración que use su
   URL tal cual la reciba mostrará un QR roto para todas las exportaciones.
+- **La misma URL de verificación también viene rota cuando el código de
+  seguridad contiene un `+`** (p. ej. `CodigoSeguridad=3G+3dM`, visto en
+  vivo en `E310000065510` y `E310000065506`): sin escapar, ese `+` se
+  interpreta como espacio (`application/x-www-form-urlencoded`), así que
+  el código que llega al portal de la DGII ya no coincide con el
+  registrado, y responde *"No fue encontrada la factura"* para un e-CF que
+  sí fue aceptado — mismo síntoma que el bug de `RncComprador=N/A`, causa
+  distinta. `_dosa_clean_qr_url` también lo corrige (escapa a `%2B`),
+  probado en vivo contra `ecf.dgii.gov.do` confirmando "Aceptado" tras la
+  corrección.
 
 **Problemas del lado de Dosasystems, no del conector (para reportarles):**
 
@@ -260,7 +270,8 @@ podían revelar:
 - `GET /api/facturas/generate_pdf` responde `HTTP 500` de forma consistente
   en las pruebas — el conector reintenta 3 veces y sigue sin bloquear la
   emisión si falla.
-- La URL de verificación con `RncComprador=N/A` para E46 (ver arriba).
+- La URL de verificación con `RncComprador=N/A` para E46 y con `+` sin
+  escapar en `CodigoSeguridad` (ver arriba).
 
 ## 8. Publicar en la Odoo Apps Store
 

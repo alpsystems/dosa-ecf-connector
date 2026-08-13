@@ -1,9 +1,10 @@
 import base64
 import json
 import logging
+import re
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import quote
 
 from werkzeug.urls import url_quote_plus
 
@@ -645,23 +646,38 @@ class AccountMove(models.Model):
 
     @staticmethod
     def _dosa_clean_qr_url(url):
-        """Para e-CF sin RNC comprador (p. ej. E46), Dosasystems devuelve la
-        URL de verificación con 'RncComprador=N/A' literal. Ese valor rompe
-        la búsqueda en el portal real de la DGII (ecf.dgii.gov.do): con el
-        parámetro puesto responde "No fue encontrada la factura", y
-        quitándolo confirma "Aceptado" para el mismo e-CF (probado en vivo).
-        El documento sí fue aceptado por la DGII; solo la URL que arma
-        Dosasystems viene mal — se limpia aquí para que el QR impreso
-        funcione.
+        """La URL de verificación que arma Dosasystems no escapa bien todos
+        sus parámetros — confirmado en vivo con dos bugs distintos, ambos
+        causando "No fue encontrada la factura" en el portal real de la
+        DGII (ecf.dgii.gov.do) para un e-CF que SÍ fue aceptado:
+
+        1. Para e-CF sin RNC comprador (p. ej. E46), el parámetro
+           RncComprador queda como 'N/A' literal — se elimina.
+        2. CodigoSeguridad puede traer un '+' sin escapar (p. ej.
+           'CodigoSeguridad=3G+3dM'); application/x-www-form-urlencoded
+           interpreta ese '+' como espacio, así que el código que llega al
+           portal no es el que la DGII tiene registrado — se escapa a
+           '%2B'.
+
+        El resto de la URL (RNCEmisor, ENCF, FechaEmision, FechaFirma, ...)
+        sí viene bien formada en todos los casos probados, así que se toca
+        solo lo puntual con regex en vez de reparsear toda la query string
+        (evitaría doble-codificar FechaFirma, que Dosasystems ya entrega
+        correctamente escapada).
         """
-        if not url or ("RncComprador=N%2FA" not in url and "RncComprador=N/A" not in url):
+        if not url:
             return url
-        parts = urlsplit(url)
-        params = [
-            (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
-            if not (k == "RncComprador" and v == "N/A")
-        ]
-        return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(params), parts.fragment))
+        url = re.sub(
+            r"[?&]RncComprador=N(?:%2F|/)A(?=&|$)",
+            lambda m: "?" if m.group(0)[0] == "?" else "",
+            url,
+        )
+        url = re.sub(
+            r"(CodigoSeguridad=)([^&]*)",
+            lambda m: m.group(1) + quote(m.group(2), safe=""),
+            url,
+        )
+        return url
 
     def _dosa_line_indicador_facturacion(self, line, tipo_ecf):
         """indicadorFacturacion NO distingue bien/servicio (eso es
