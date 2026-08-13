@@ -187,10 +187,13 @@ vez del 18% general) y úsalo en esas líneas — ver el detalle y el porqué en
   (18%/16%/0%/exento) — probado con **301 facturas reales** de producción,
   53 importadas en el rango de prueba y **las 53 contabilizadas
   automáticamente**, 0 en borrador.
-- El PDF de la DGII se adjunta automáticamente al comprobante tras una
-  emisión exitosa (`generate_pdf`, cuando el servidor de Dosasystems
-  responde — ver más abajo); además, el QR de verificación se inserta en
-  el reporte de factura nativo de Odoo.
+- El PDF que se adjunta automáticamente al comprobante tras una emisión
+  exitosa, y el que genera el botón "Reimprimir PDF"/"PDF" del Monitor de
+  Emisiones, es el **reporte de factura nativo de Odoo** (el mismo del
+  botón "Imprimir" estándar, con el QR/eNCF/código de seguridad ya
+  insertados) — no `GET /api/facturas/generate_pdf` de Dosasystems, que
+  responde `HTTP 500` de forma consistente (ver más abajo). Usar el PDF
+  propio de Odoo evita depender de ese endpoint.
 - Norma 07-07 (construcción) y B11/retenciones a maestros constructores:
   ver [docs/ESCENARIOS_EXPORTACION_CONSTRUCCION.md](dosa_ecf_connector/docs/ESCENARIOS_EXPORTACION_CONSTRUCCION.md)
   para el detalle de qué cubre el conector y qué queda fuera (el flujo de

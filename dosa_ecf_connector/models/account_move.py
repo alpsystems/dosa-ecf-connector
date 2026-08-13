@@ -267,17 +267,25 @@ class AccountMove(models.Model):
             self.message_post(body=_("e-CF %(encf)s enviado a DGII. Estado: %(estado)s (trackId %(track)s)") % {
                 "encf": self.dosa_encf, "estado": estado, "track": vals["dosa_track_id"]})
 
+    def _dosa_render_native_pdf(self):
+        """Representación impresa del e-CF: se usa el reporte de factura
+        nativo de Odoo (el mismo del botón "Imprimir" estándar), que ya
+        trae el QR/eNCF/código de seguridad insertados
+        (report_invoice_dosa.xml), en vez de GET /api/facturas/generate_pdf
+        de Dosasystems — ese endpoint responde HTTP 500 de forma
+        consistente en las pruebas (ver README), así que apoyarse en el
+        propio PDF de Odoo es más confiable y no depende de su servidor."""
+        self.ensure_one()
+        report = self.env.ref("account.account_invoices")
+        pdf_content, _report_type = report.sudo()._render_qweb_pdf(
+            "account.report_invoice_with_payments", self.ids)
+        return pdf_content
+
     def _dosa_attach_pdf(self):
         self.ensure_one()
         if not self.dosa_encf:
             return
-        company = self.company_id
-        try:
-            pdf_content = company.get_dosa_api_client().generate_pdf(
-                self._dosa_clean_vat(company.vat), self.dosa_encf)
-        except DosaApiError as exc:
-            _logger.warning("No se pudo descargar el PDF DGII de %s: %s", self.dosa_encf, exc)
-            return
+        pdf_content = self._dosa_render_native_pdf()
         if pdf_content:
             self.env["ir.attachment"].create({
                 "name": f"{self.dosa_encf}.pdf",
@@ -380,14 +388,9 @@ class AccountMove(models.Model):
     def action_dosa_print_pdf(self):
         self.ensure_one()
         self._dosa_ensure_encf()
-        company = self.company_id
-        try:
-            pdf_content = company.get_dosa_api_client().generate_pdf(
-                self._dosa_clean_vat(company.vat), self.dosa_encf)
-        except DosaApiError as exc:
-            raise UserError(_("No se pudo generar el PDF en Dosasystems: %s") % exc) from exc
+        pdf_content = self._dosa_render_native_pdf()
         if not pdf_content:
-            raise UserError(_("Dosasystems no devolvió contenido PDF."))
+            raise UserError(_("No se pudo generar el PDF."))
         return self._dosa_download_attachment(f"{self.dosa_encf}.pdf", pdf_content, "application/pdf")
 
     # ------------------------------------------------------------------
