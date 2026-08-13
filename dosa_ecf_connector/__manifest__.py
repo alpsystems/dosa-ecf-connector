@@ -22,6 +22,7 @@ Comprobantes Fiscales Electrónicos (e-CF) de la DGII, República Dominicana.
     "support": "soporte@dosasystem.com",
     "license": "LGPL-3",
     "category": "Accounting/Localizations",
+    "images": ["static/description/banner.png"],
     "depends": ["account"],
     "external_dependencies": {"python": ["requests"]},
     "data": [
