@@ -153,7 +153,17 @@ vez del 18% general) y úsalo en esas líneas — ver el detalle y el porqué en
    más abajo): reenvía el mismo comprobante a `EnviarFactura`/
    `NotaDesdeFactura`, y Dosasystems responde con el último estado que
    tiene guardado en vez de tramitarlo de nuevo con la DGII.
-7. Para una **nota de crédito**, usa el botón **"Añadir nota de crédito"**
+7. En el **Monitor de Emisiones**, cada fila con eNCF tiene botones
+   **PDF / XML / JSON** para reimprimir o descargar el comprobante
+   directamente desde Dosasystems, sin abrir la factura. Requieren que
+   **"Dosa User ID"** esté configurado (Ajustes > Facturación >
+   Dosasystems) — a diferencia de emitir, estas descargas sí lo necesitan
+   porque usan `GET /api/facturas/lista` + `GET
+   /api/facturas/documento/{id}` (no documentados como obligatorios en el
+   swagger, pero devuelven `400 "userId o apiKey inválido"` sin él). El
+   conector resuelve y cachea el `facturaElectronicaID` interno de
+   Dosasystems automáticamente la primera vez.
+8. Para una **nota de crédito**, usa el botón **"Añadir nota de crédito"**
    desde la factura original (así Odoo la vincula automáticamente vía
    `reversed_entry_id`, que el conector necesita para reenviar el JSON
    original a `NotaDesdeFactura`). En la pestaña **"DGII e-CF"** de la nota

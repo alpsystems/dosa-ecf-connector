@@ -76,6 +76,11 @@ class AccountMove(models.Model):
              "solo cambia con una respuesta válida de Dosasystems.")
     dosa_request_payload = fields.Text(
         string="JSON enviado/recibido a Dosasystems", readonly=True, copy=False)
+    dosa_electronica_id = fields.Integer(
+        string="ID interno Dosasystems", readonly=True, copy=False,
+        help="'facturaElectronicaID' en Dosasystems. Se resuelve automáticamente "
+             "la primera vez que se descarga el XML/JSON o se reimprime el PDF "
+             "de este e-CF desde el Monitor de Emisiones.")
 
     _dosa_encf_company_uniq = models.Constraint(
         "unique(company_id, dosa_encf)",
@@ -281,6 +286,108 @@ class AccountMove(models.Model):
                 "res_id": self.id,
                 "mimetype": "application/pdf",
             })
+
+    # ------------------------------------------------------------------
+    # Monitor de Emisiones: descargar XML/JSON e reimprimir PDF a demanda
+    # (GET /api/facturas/lista + /api/facturas/documento/{id})
+    # ------------------------------------------------------------------
+    def _dosa_resolve_electronica_id(self):
+        """El 'facturaElectronicaID' interno de Dosasystems no viene en la
+        respuesta de EnviarFactura/NotaDesdeFactura, así que se resuelve
+        buscando el eNCF en /api/facturas/lista (filtrado por fecha de
+        emisión) y se cachea en dosa_electronica_id para no repetir la
+        búsqueda cada vez."""
+        self.ensure_one()
+        if self.dosa_electronica_id:
+            return self.dosa_electronica_id
+        company = self.company_id
+        if not company.dosa_user_id:
+            raise UserError(_(
+                "Configura 'Dosa User ID' en Contabilidad/Facturación > "
+                "Configuración > Ajustes > Dosasystems (e-CF DGII): es "
+                "obligatorio para descargar el XML/JSON o reimprimir el PDF "
+                "desde el Monitor de Emisiones (aunque no haga falta para "
+                "emitir)."))
+        client = company.get_dosa_api_client()
+        fecha = self.invoice_date or fields.Date.context_today(self)
+        fecha_desde = (fecha - timedelta(days=1)).strftime("%Y-%m-%d")
+        fecha_hasta = (fecha + timedelta(days=1)).strftime("%Y-%m-%d")
+        registros = client.listar_facturas(
+            company.dosa_user_id, fecha_desde=fecha_desde, fecha_hasta=fecha_hasta)
+        match = next((r for r in registros if r.get("eNCF") == self.dosa_encf), None)
+        if not match:
+            # Margen de fecha insuficiente (p. ej. reenvíos o diferencias de
+            # huso horario con la fecha de firma DGII): reintenta sin filtro.
+            registros = client.listar_facturas(company.dosa_user_id)
+            match = next((r for r in registros if r.get("eNCF") == self.dosa_encf), None)
+        if not match:
+            raise UserError(_(
+                "No se encontró el e-CF %s en Dosasystems (userId %s).") % (
+                    self.dosa_encf, company.dosa_user_id))
+        self.dosa_electronica_id = match["facturaElectronicaID"]
+        return self.dosa_electronica_id
+
+    def _dosa_fetch_documento(self):
+        self.ensure_one()
+        factura_id = self._dosa_resolve_electronica_id()
+        client = self.company_id.get_dosa_api_client()
+        return client.obtener_documento(self.company_id.dosa_user_id, factura_id)
+
+    def _dosa_download_attachment(self, name, content, mimetype):
+        self.ensure_one()
+        attachment = self.env["ir.attachment"].create({
+            "name": name,
+            "type": "binary",
+            "datas": base64.b64encode(content if isinstance(content, bytes) else content.encode("utf-8")),
+            "res_model": "account.move",
+            "res_id": self.id,
+            "mimetype": mimetype,
+        })
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"/web/content/{attachment.id}?download=true",
+            "target": "self",
+        }
+
+    def _dosa_ensure_encf(self):
+        self.ensure_one()
+        if not self.dosa_encf:
+            raise UserError(_("Esta factura no tiene un e-CF emitido todavía."))
+
+    def action_dosa_download_xml(self):
+        self.ensure_one()
+        self._dosa_ensure_encf()
+        try:
+            doc = self._dosa_fetch_documento()
+        except DosaApiError as exc:
+            raise UserError(str(exc)) from exc
+        if not doc.get("xml"):
+            raise UserError(_("Dosasystems no devolvió el XML de este e-CF."))
+        return self._dosa_download_attachment(f"{self.dosa_encf}.xml", doc["xml"], "application/xml")
+
+    def action_dosa_download_json(self):
+        self.ensure_one()
+        self._dosa_ensure_encf()
+        try:
+            doc = self._dosa_fetch_documento()
+        except DosaApiError as exc:
+            raise UserError(str(exc)) from exc
+        if not doc.get("json"):
+            raise UserError(_("Dosasystems no devolvió el JSON de este e-CF."))
+        return self._dosa_download_attachment(f"{self.dosa_encf}.json", doc["json"], "application/json")
+
+    def action_dosa_print_pdf(self):
+        self.ensure_one()
+        self._dosa_ensure_encf()
+        company = self.company_id
+        try:
+            pdf_content = company.get_dosa_api_client().generate_pdf(
+                self._dosa_clean_vat(company.vat), self.dosa_encf)
+        except DosaApiError as exc:
+            raise UserError(_("No se pudo generar el PDF en Dosasystems: %s") % exc) from exc
+        if not pdf_content:
+            raise UserError(_("Dosasystems no devolvió contenido PDF."))
+        return self._dosa_download_attachment(f"{self.dosa_encf}.pdf", pdf_content, "application/pdf")
 
     # ------------------------------------------------------------------
     # Construcción del payload JsonPost (ver README de Dosasystems)

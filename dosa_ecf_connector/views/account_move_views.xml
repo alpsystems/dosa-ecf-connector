@@ -60,6 +60,14 @@
                             <field name="dosa_check_error" invisible="not dosa_check_error"/>
                         </group>
                     </group>
+                    <div class="mt-2" invisible="not dosa_encf">
+                        <button name="action_dosa_print_pdf" type="object" string="Reimprimir PDF"
+                                icon="fa-print" class="btn-secondary me-2"/>
+                        <button name="action_dosa_download_xml" type="object" string="Descargar XML"
+                                icon="fa-file-code-o" class="btn-secondary me-2"/>
+                        <button name="action_dosa_download_json" type="object" string="Descargar JSON"
+                                icon="fa-file-text-o" class="btn-secondary"/>
+                    </div>
                     <field name="dosa_mensajes" readonly="1"/>
                 </page>
             </xpath>
@@ -117,6 +125,12 @@
                 <field name="dosa_track_id" optional="show"/>
                 <field name="dosa_mensajes" string="Mensajes DGII" optional="show"/>
                 <field name="dosa_check_error" string="Falló consulta de estado" optional="show"/>
+                <button name="action_dosa_print_pdf" type="object" icon="fa-print"
+                        string="PDF" title="Reimprimir PDF desde Dosasystems" invisible="not dosa_encf"/>
+                <button name="action_dosa_download_xml" type="object" icon="fa-file-code-o"
+                        string="XML" title="Descargar XML" invisible="not dosa_encf"/>
+                <button name="action_dosa_download_json" type="object" icon="fa-file-text-o"
+                        string="JSON" title="Descargar JSON" invisible="not dosa_encf"/>
             </list>
         </field>
     </record>

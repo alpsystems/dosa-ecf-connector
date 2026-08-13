@@ -159,3 +159,26 @@ class DosaApiClient:
             params={"rnc": rnc, "encf": encf},
             expect_json=False,
         )
+
+    def listar_facturas(self, user_id, fecha_desde=None, fecha_hasta=None, page=1, page_size=200):
+        """GET /api/facturas/lista — e-CF ya emitidos por este userId (requiere
+        'Dosa User ID', no solo el API Key). No trae XML/JSON completos, solo
+        el resumen + 'facturaElectronicaID' (ver obtener_documento)."""
+        params = {"apiKey": self.api_key, "userId": user_id, "page": page, "pageSize": page_size}
+        if fecha_desde:
+            params["fechaDesde"] = fecha_desde
+        if fecha_hasta:
+            params["fechaHasta"] = fecha_hasta
+        result = self._request("GET", "/api/facturas/lista", params=params)
+        if isinstance(result, dict):
+            return result.get("data") or []
+        return result or []
+
+    def obtener_documento(self, user_id, factura_electronica_id):
+        """GET /api/facturas/documento/{id} — XML y JSON completos de un e-CF
+        ya emitido, identificado por su 'facturaElectronicaID' (no el eNCF;
+        hay que resolverlo antes vía listar_facturas)."""
+        return self._request(
+            "GET", f"/api/facturas/documento/{factura_electronica_id}",
+            params={"apiKey": self.api_key, "userId": user_id},
+        )
