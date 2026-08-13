@@ -1,0 +1,75 @@
+<section class="container">
+
+  <div class="row" style="background-color:#003d7a; border-radius:8px; padding:32px 36px; margin-bottom:28px;">
+    <div class="col-12">
+      <h1 style="color:#ffffff; margin-bottom:8px;">Dosa e-CF Connector</h1>
+      <p style="color:#ffffff; font-size:16px;">
+        Electronic invoicing (e-CF) for the Dominican Republic's tax authority (DGII), via
+        Dosa Invoice Cloud. Issue, record and verify your electronic tax receipts without
+        leaving Odoo.
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6" style="padding:20px; border:1px solid #e0e0e0; border-radius:8px; margin-bottom:20px;">
+      <h3 style="color:#003d7a;">Automatic or manual submission</h3>
+      <p style="font-size:14px;">
+        Issue E31, E32, E34 (credit notes) and E46 (export) receipts directly from your
+        Odoo invoices. You choose: automatic submission on validation, or a button on the
+        invoice itself &mdash; no extra screens.
+      </p>
+    </div>
+    <div class="col-md-6" style="padding:20px; border:1px solid #e0e0e0; border-radius:8px; margin-bottom:20px;">
+      <h3 style="color:#003d7a;">Automatic vendor bill import</h3>
+      <p style="font-size:14px;">
+        Periodically syncs the electronic receipts issued by your suppliers and records
+        them as vendor bills in Odoo, with taxes detected automatically per line.
+      </p>
+    </div>
+    <div class="col-md-6" style="padding:20px; border:1px solid #e0e0e0; border-radius:8px; margin-bottom:20px;">
+      <h3 style="color:#003d7a;">DGII verification QR code</h3>
+      <p style="font-size:14px;">
+        Adds the official DGII verification QR code to Odoo's native invoice report
+        &mdash; works alongside your existing layout/logo, without replacing it.
+      </p>
+    </div>
+    <div class="col-md-6" style="padding:20px; border:1px solid #e0e0e0; border-radius:8px; margin-bottom:20px;">
+      <h3 style="color:#003d7a;">Export &amp; construction-sector support</h3>
+      <p style="font-size:14px;">
+        Dedicated handling for export receipts (E46, with foreign-currency amounts) and
+        for the special ITBIS regime for the construction sector (Norma 07-07).
+      </p>
+    </div>
+  </div>
+
+  <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">Submission monitor</h2>
+  <p style="font-size:14px;">
+    A single list of every submitted receipt: DGII status (Accepted, Accepted with
+    observations, Conditionally accepted, Rejected), track ID, DGII messages and
+    communication failures &mdash; without opening each invoice individually.
+  </p>
+
+  <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">eNCF number ranges</h2>
+  <p style="font-size:14px;">
+    Configure the authorized from/to range and the expiration date of each eNCF sequence
+    per receipt type from a single screen, with automatic validation before submission.
+  </p>
+
+  <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">External service &amp; data disclosure</h2>
+  <p style="font-size:14px;">
+    This app requires an account with Dosa Invoice Cloud (dosasystem.com) and sends it
+    the data needed to issue an e-CF: your company's invoice, customer and product data
+    (names, tax IDs/RNC, addresses, line items and amounts) for outgoing invoices, and
+    reads back the corresponding vendor invoice data for receipts issued to you. No data
+    is sent until you configure your own API key and either validate an invoice or enable
+    automatic submission.
+  </p>
+
+  <h2 style="color:#003d7a; border-bottom:2px solid #eeeeee; padding-bottom:8px;">Requirements</h2>
+  <ul style="font-size:14px;">
+    <li>Odoo 19 Community or Enterprise, with the Accounting/Invoicing app installed.</li>
+    <li>An active Dosa Invoice Cloud account (dosasystem.com) with an API key.</li>
+  </ul>
+
+</section>

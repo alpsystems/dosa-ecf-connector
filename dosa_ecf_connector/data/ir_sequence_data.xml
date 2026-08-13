@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        Una secuencia ir.sequence por tipo de e-CF y compañía. El "Número
+        siguiente" se puede ajustar desde Ajustes > Técnico > Secuencias para
+        alinearlo con el rango autorizado por la DGII para este RNC.
+        implementation="no_gap" evita reutilizar un número si dos facturas se
+        validan casi al mismo tiempo.
+    -->
+    <record id="dosa_ecf_sequence_31" model="ir.sequence">
+        <field name="name">Dosa e-CF E31 - Factura de Crédito Fiscal</field>
+        <field name="code">dosa.ecf.31</field>
+        <field name="prefix">E31</field>
+        <field name="padding">10</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="dosa_ecf_sequence_32" model="ir.sequence">
+        <field name="name">Dosa e-CF E32 - Factura de Consumo</field>
+        <field name="code">dosa.ecf.32</field>
+        <field name="prefix">E32</field>
+        <field name="padding">10</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="dosa_ecf_sequence_34" model="ir.sequence">
+        <field name="name">Dosa e-CF E34 - Nota de Crédito</field>
+        <field name="code">dosa.ecf.34</field>
+        <field name="prefix">E34</field>
+        <field name="padding">10</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="dosa_ecf_sequence_46" model="ir.sequence">
+        <field name="name">Dosa e-CF E46 - Exportaciones</field>
+        <field name="code">dosa.ecf.46</field>
+        <field name="prefix">E46</field>
+        <field name="padding">10</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+        <field name="implementation">no_gap</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Pantalla dedicada para configurar los rangos de eNCF autorizados por
+        la DGII, sin depender de Ajustes > Técnico > Secuencias (requiere
+        modo desarrollador y no es obvio de encontrar).
+    -->
+    <record id="view_dosa_ecf_sequence_list" model="ir.ui.view">
+        <field name="name">ir.sequence.list.dosa.rangos</field>
+        <field name="model">ir.sequence</field>
+        <field name="arch" type="xml">
+            <list string="Rangos de eNCF" editable="bottom">
+                <field name="name" readonly="1"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="number_next_actual" string="Número siguiente"/>
+                <field name="dosa_rango_desde"/>
+                <field name="dosa_rango_hasta"/>
+                <field name="dosa_fecha_vencimiento"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_dosa_ecf_sequence" model="ir.actions.act_window">
+        <field name="name">Rangos de eNCF</field>
+        <field name="res_model">ir.sequence</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_dosa_ecf_sequence_list"/>
+        <field name="domain">[('code', 'like', 'dosa.ecf.%')]</field>
+        <field name="context">{'default_padding': 10, 'default_implementation': 'no_gap'}</field>
+    </record>
+</odoo>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_dosa" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.dosa</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_dosa_emit_ecf" type="object" string="Emitir e-CF"
+                        class="oe_highlight"
+                        invisible="move_type not in ('out_invoice', 'out_refund') or dosa_encf or state != 'posted'"/>
+                <button name="action_dosa_check_status" type="object" string="Consultar estado DGII"
+                        invisible="not dosa_encf"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_dosa_check_status" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                        invisible="not dosa_encf">
+                    <div class="o_stat_info">
+                        <span class="o_stat_value"><field name="dosa_encf"/></span>
+                        <span class="o_stat_text"><field name="dosa_estado"/></span>
+                    </div>
+                </button>
+                <button name="action_dosa_emit_ecf" type="object" class="oe_stat_button" icon="fa-cloud-upload"
+                        invisible="move_type not in ('out_invoice', 'out_refund') or dosa_encf or state != 'posted'">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Emitir e-CF</span>
+                        <span class="o_stat_text">(pendiente)</span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="after">
+                <widget name="web_ribbon" title="e-CF rechazado por la DGII" bg_color="text-bg-danger"
+                        invisible="dosa_estado != 'rechazado'"/>
+                <widget name="web_ribbon" title="Error al emitir e-CF" bg_color="text-bg-danger"
+                        invisible="dosa_estado != 'error'"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="DGII e-CF" name="dosa_ecf"
+                      invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')">
+                    <group>
+                        <group string="Comprobante" invisible="dosa_is_received">
+                            <field name="dosa_tipo_ecf"/>
+                            <field name="dosa_encf"/>
+                            <field name="dosa_norma_0707"
+                                   invisible="move_type not in ('out_invoice', 'out_refund') or dosa_tipo_ecf == '46'"/>
+                            <field name="dosa_codigo_modificacion"
+                                   invisible="move_type != 'out_refund'"
+                                   readonly="dosa_encf != False"/>
+                        </group>
+                        <group string="Comprobante recibido" invisible="not dosa_is_received">
+                            <field name="dosa_recibida_encf"/>
+                            <field name="dosa_rnc_emisor_recibido"/>
+                        </group>
+                        <group string="Estado DGII">
+                            <field name="dosa_estado"/>
+                            <field name="dosa_track_id"/>
+                            <field name="dosa_codigo_seguridad"/>
+                            <field name="dosa_url_qr" widget="url"/>
+                            <field name="dosa_fecha_firma"/>
+                            <field name="dosa_check_error" invisible="not dosa_check_error"/>
+                        </group>
+                    </group>
+                    <field name="dosa_mensajes" readonly="1"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_tree_dosa" model="ir.ui.view">
+        <field name="name">account.move.list.inherit.dosa</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="dosa_encf" optional="show"/>
+                <field name="dosa_estado" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_move_dosa_errores" model="ir.actions.act_window">
+        <field name="name">e-CF con errores</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('dosa_estado', 'in', ('error', 'rechazado'))]</field>
+        <field name="context">{'search_default_group_by_move_type': 0}</field>
+    </record>
+
+    <record id="action_move_dosa_recibidas" model="ir.actions.act_window">
+        <field name="name">Facturas recibidas (Dosasystems)</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('dosa_is_received', '=', True)]</field>
+    </record>
+
+    <!-- Monitor de emisiones: una fila por e-CF emitido, con los campos
+         clave de la DGII y visibilidad directa de fallos de ConsultaEstado,
+         sin tener que abrir cada factura. -->
+    <record id="view_move_list_dosa_monitor" model="ir.ui.view">
+        <field name="name">account.move.list.dosa.monitor</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Monitor de Emisiones DGII" default_order="invoice_date desc, id desc"
+                  decoration-danger="dosa_estado in ('rechazado', 'error') or dosa_check_error"
+                  decoration-warning="dosa_estado in ('aceptado_observaciones', 'aceptado_condicional')"
+                  decoration-success="dosa_estado == 'aceptado'">
+                <field name="name" string="Factura"/>
+                <field name="partner_id"/>
+                <field name="dosa_tipo_ecf"/>
+                <field name="dosa_encf" string="eNCF"/>
+                <field name="invoice_date" string="Fecha emisión"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="dosa_estado" widget="badge"
+                       decoration-success="dosa_estado == 'aceptado'"
+                       decoration-warning="dosa_estado in ('aceptado_observaciones', 'aceptado_condicional')"
+                       decoration-danger="dosa_estado in ('rechazado', 'error')"/>
+                <field name="dosa_track_id" optional="show"/>
+                <field name="dosa_mensajes" string="Mensajes DGII" optional="show"/>
+                <field name="dosa_check_error" string="Falló consulta de estado" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_move_search_dosa_monitor" model="ir.ui.view">
+        <field name="name">account.move.search.dosa.monitor</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <search string="Monitor de Emisiones DGII">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="dosa_encf"/>
+                <field name="dosa_track_id"/>
+                <filter string="Falló consulta de estado" name="check_failed"
+                        domain="[('dosa_check_error', '!=', False)]"/>
+                <filter string="Rechazados / Error" name="rejected_or_error"
+                        domain="[('dosa_estado', 'in', ('rechazado', 'error'))]"/>
+                <filter string="Con observaciones" name="with_observations"
+                        domain="[('dosa_estado', 'in', ('aceptado_observaciones', 'aceptado_condicional'))]"/>
+                <separator/>
+                <filter string="Fecha emisión" name="invoice_date" date="invoice_date"/>
+                <group>
+                    <filter string="Estado DGII" name="group_estado" context="{'group_by': 'dosa_estado'}"/>
+                    <filter string="Tipo de e-CF" name="group_tipo" context="{'group_by': 'dosa_tipo_ecf'}"/>
+                    <filter string="Cliente" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_move_dosa_monitor" model="ir.actions.act_window">
+        <field name="name">Monitor de Emisiones</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('dosa_encf', '!=', False)]</field>
+        <field name="search_view_id" ref="view_move_search_dosa_monitor"/>
+        <field name="context">{'search_default_check_failed': 0}</field>
+    </record>
+    <record id="action_move_dosa_monitor_list_view" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_move_list_dosa_monitor"/>
+        <field name="act_window_id" ref="action_move_dosa_monitor"/>
+    </record>
+</odoo>

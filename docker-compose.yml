@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - dosa-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  odoo:
+    image: odoo:19.0
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    volumes:
+      - dosa-odoo-data:/var/lib/odoo
+      - ./dosa_ecf_connector:/mnt/extra-addons/dosa_ecf_connector
+    restart: unless-stopped
+
+volumes:
+  dosa-db-data:
+  dosa-odoo-data:

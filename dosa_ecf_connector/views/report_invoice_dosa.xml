@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Inserta el QR de verificación de la DGII en el reporte de factura
+        NATIVO de Odoo (account.report_invoice_document), sin tocar ningún
+        formato/plantilla que el usuario haya personalizado aparte. Al usar
+        el mismo punto de anclaje que el QR de pago SEPA (div#qrcode), esto
+        aparece automáticamente en cualquier instalación de Odoo que tenga
+        este módulo instalado, sin configuración adicional.
+    -->
+    <template id="report_invoice_document_dosa" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[@id='qrcode']" position="after">
+            <div id="dosa_ecf_qrcode" class="d-flex mb-3 avoid-page-break-inside"
+                 t-if="o.dosa_url_qr">
+                <div class="me-3">
+                    <img t-att-src="o._dosa_qr_img_src()" style="width:110px;height:110px;"/>
+                </div>
+                <div class="d-inline text-muted lh-sm">
+                    <p class="mb-1">
+                        <strong>e-CF: </strong><span t-field="o.dosa_encf"/>
+                    </p>
+                    <p class="mb-1" t-if="o.dosa_codigo_seguridad">
+                        <strong>Código de seguridad: </strong><span t-field="o.dosa_codigo_seguridad"/>
+                    </p>
+                    <p class="mb-0">
+                        Comprobante Fiscal Electrónico. Verifique este documento en
+                        <a t-att-href="o.dosa_url_qr" target="_blank">ecf.dgii.gov.do</a>
+                    </p>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

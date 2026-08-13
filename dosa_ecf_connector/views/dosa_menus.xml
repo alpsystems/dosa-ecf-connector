@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_dosa_ecf_root" name="Facturación DGII" parent="account.menu_finance"
+              groups="account.group_account_manager" sequence="8"/>
+
+    <menuitem id="menu_dosa_ecf_monitor" name="Monitor de Emisiones"
+              parent="menu_dosa_ecf_root" action="action_move_dosa_monitor" sequence="5"/>
+
+    <menuitem id="menu_dosa_ecf_rangos" name="Rangos de eNCF"
+              parent="menu_dosa_ecf_root" action="action_dosa_ecf_sequence" sequence="7"/>
+
+    <menuitem id="menu_dosa_ecf_recibidas" name="Facturas recibidas"
+              parent="menu_dosa_ecf_root" action="action_move_dosa_recibidas" sequence="10"/>
+
+    <menuitem id="menu_dosa_ecf_errores" name="e-CF con errores"
+              parent="menu_dosa_ecf_root" action="action_move_dosa_errores" sequence="20"/>
+
+    <menuitem id="menu_dosa_ecf_config" name="Compañías (credenciales Dosasystems)"
+              parent="menu_dosa_ecf_root" action="base.action_res_company_form" sequence="30"/>
+</odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_dosa" model="ir.ui.view">
+        <field name="name">res.company.form.inherit.dosa</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Dosasystems (e-CF)" name="dosa_ecf">
+                    <group>
+                        <group string="Credenciales">
+                            <field name="dosa_base_url"/>
+                            <field name="dosa_api_key" password="True"/>
+                            <field name="dosa_recibidas_api_key" password="True"/>
+                            <field name="dosa_user_id"/>
+                        </group>
+                        <group string="Comportamiento">
+                            <field name="dosa_default_forma_pago"/>
+                            <field name="dosa_auto_emit"/>
+                            <field name="dosa_auto_sync_recibidas"/>
+                            <field name="dosa_recibidas_journal_id"/>
+                            <field name="dosa_recibidas_last_sync" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
